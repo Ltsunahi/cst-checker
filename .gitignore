@@ -1,0 +1,19 @@
+# 真实名单 —— 绝对不要提交到公开仓库
+data/
+!data/.gitkeep
+
+# 参考站存档：里面有 secret.key 和加密数据，合起来能解出别人的名单
+_ref/
+
+# 构建产物里的报告（含名单统计，可能带姓名）
+build-report.txt
+
+# 杂项
+shots/
+node_modules/
+PLAN.md
+tools/fetch_ref_data.js
+.tmp/
+*.log
+Thumbs.db
+desktop.ini

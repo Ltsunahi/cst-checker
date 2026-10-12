@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive,noimageindex">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#f0f2f5">
+<title>计维二面结果查询</title>
+<link rel="icon" href="assets/logo.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main class="container">
+    <header>
+        <img src="assets/logo.png" alt="计算机维护队队徽" id="logo" width="160" height="160">
+        <h1>二面结果查询</h1>
+        <p>欢迎查询计算机维护队第 21 届招新第二轮面试结果</p>
+    </header>
+
+    <form class="search-box" id="searchForm" autocomplete="off" novalidate>
+        <div class="field">
+            <label for="sidInput">学号</label>
+            <input type="text" id="sidInput" name="sid" inputmode="numeric"
+                   placeholder="请输入学号" autocomplete="off" autocapitalize="off"
+                   spellcheck="false" maxlength="20">
+        </div>
+        <div class="field">
+            <label for="nameInput">姓名</label>
+            <input type="text" id="nameInput" name="name"
+                   placeholder="请输入姓名" autocomplete="off" autocapitalize="off"
+                   spellcheck="false" maxlength="20">
+        </div>
+        <button type="submit" id="searchButton">查 询</button>
+    </form>
+
+    <div id="status" class="status" role="status" aria-live="polite"></div>
+
+    <div id="result" class="result-box"></div>
+</main>
+
+<footer>
+    <p>如有疑惑，请及时联系招新群管理员</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
