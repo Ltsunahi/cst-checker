@@ -1,9 +1,10 @@
 # 真实名单 —— 绝对不要提交到公开仓库
-data/
-!data/.gitkeep
+# 注意：必须用 /data/* 而不是 data/，否则会连 public/data/（部署产物）一起忽略掉
+/data/*
+!/data/.gitkeep
 
 # 参考站存档：里面有 secret.key 和加密数据，合起来能解出别人的名单
-_ref/
+/_ref/
 
 # 构建产物里的报告（含名单统计，可能带姓名）
 build-report.txt
