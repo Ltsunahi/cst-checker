@@ -4,7 +4,6 @@
   "vars": {
     "year": "2026",
     "deadline": "10月16日15:00前",
-    "groupName": "xxx",
     "groupQq": "965146658"
   },
 
@@ -12,9 +11,9 @@
   "defaultGroup": "技术组",
 
   "templates": {
-    "P": "<h3>恭喜通过！</h3><p><strong>${nameToSearch}</strong>, 恭喜你顺利通过${year}年计算机维护队第二轮招新面试！</p><p>你所进入的组别是：<strong>${group}</strong>。</p><p>请于<strong>${deadline}</strong>加入Q群：${groupName}（群号：<strong>${groupQq}</strong>），并随时留意群内通知。</p>",
+    "P": "<h3>恭喜通过！</h3><p><strong>${nameToSearch}</strong>, 恭喜你顺利通过${year}年计算机维护队第二轮招新面试！</p><p>你所进入的组别是：<strong>${group}</strong>。</p><p>请于<strong>${deadline}</strong>加入Q群：<strong>${groupQq}</strong>，并随时留意群内通知。</p>",
     "_P_nogroup说明": "名单里没填分组时，自动改用这条，避免出现「你所进入的组别是：。」",
-    "P_nogroup": "<h3>恭喜通过！</h3><p><strong>${nameToSearch}</strong>, 恭喜你顺利通过${year}年计算机维护队第二轮招新面试！</p><p>请于<strong>${deadline}</strong>加入Q群：${groupName}（群号：<strong>${groupQq}</strong>），并随时留意群内通知。</p>",
+    "P_nogroup": "<h3>恭喜通过！</h3><p><strong>${nameToSearch}</strong>, 恭喜你顺利通过${year}年计算机维护队第二轮招新面试！</p><p>请于<strong>${deadline}</strong>加入Q群：<strong>${groupQq}</strong>，并随时留意群内通知。</p>",
     "F": "<h3>二面结果反馈</h3><p>亲爱的<strong>${nameToSearch}</strong>同学，你好！感谢你参与我们的第二轮面试。经过综合考量，我们很遗憾地通知你未能通过本次招新。</p><p>这不代表对你能力的否定，我们看到了你的潜力和热情。希望你继续保持对技术的热爱，在大学生活中不断进步！</p>",
     "N": "<h3>无二面记录</h3><p>你好, ${nameToSearch}。未查询到你的二面面试记录。</p>",
     "NotFound": "<h3>无二面记录</h3><p>你好, ${nameToSearch}。未查询到你的二面面试记录。</p>"
