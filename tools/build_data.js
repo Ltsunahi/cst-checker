@@ -133,7 +133,7 @@ function main() {
     console.log('');
     console.log('有效记录：' + people.length + ' 条');
     console.log('结果分布：' + Object.entries(byCode).map(([k, v]) => `${k}=${v}`).join('  '));
-    console.log('数据文件：public\\data\\records.json（' + sizeKb + ' KB）');
+    console.log('数据文件：docs\\data\\records.json（' + sizeKb + ' KB）');
     if (warnings.length) console.log('警告 ' + warnings.length + ' 条，详见 build-report.txt');
     console.log('未识别的结果值：' + (unmapped.length ? JSON.stringify(unmapped) : '无'));
     console.log('耗时 ' + (Date.now() - started) + ' ms');

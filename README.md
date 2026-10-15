@@ -107,12 +107,15 @@ cst-checker/
 │  ├─ make_preview.js       生成截图用的预览页
 │  ├─ serve.js              本地预览服务器
 │  └─ sample-data.csv       示例数据（假数据）
-├─ public/                  构建产物 = 部署目录（不要手改）
+├─ docs/                    构建产物 = 部署目录（不要手改；Pages 直接发布这个文件夹）
 ├─ data/                    放真实名单（**已被 .gitignore 忽略**）
-└─ .github/workflows/deploy.yml
 ```
 
-`build_data.js` 每次运行会做三件事：把 `src/` 复制进 `public/`、生成 `public/data/records.json`、写 `public/robots.txt`。
+`build_data.js` 每次运行会做三件事：把 `src/` 复制进 `docs/`、生成 `docs/data/records.json`、写 `docs/robots.txt`。
+
+> 目录名用 `docs` 不是随便起的：GitHub Pages 的「分支发布」只允许指向仓库根目录或 `/docs`。
+> 早先用 Actions 的 `deploy-pages` 发布，但那个接口会偶发卡死（实测连续两次挂 10 分钟直到超时），
+> 所以改成分支发布，稳定得多，也不再消耗 Actions 额度。
 
 ---
 
@@ -140,8 +143,22 @@ cst-checker/
 
 ## 四、部署
 
-仓库 `Ltsunahi/cst-checker`，分支 `main`。Pages 来源选 **GitHub Actions**，
-`.github/workflows/deploy.yml` 会在每次 push 后自动把 `public/` 发上去。
+仓库 `Ltsunahi/cst-checker`，分支 `main`。
 
-如果 Actions 用不了，退路是：Settings → Pages → Source 选 `Deploy from a branch`，
-分支 `main`、目录 `/docs`，然后让构建脚本输出到 `docs/` 即可。
+Pages 配置：**Settings → Pages → Source = Deploy from a branch，分支 `main`，目录 `/docs`**。
+push 到 `main` 之后 GitHub 会自动重新发布 `docs/`，大约半分钟生效。不需要任何 Actions 工作流。
+
+改了名单或文案的完整流程：
+
+```
+build.cmd                              # 构建 + 自检
+git add -A && git commit -m "更新名单"
+git push
+```
+
+### 如果线上没更新
+
+1. 先确认 `git push` 成功了
+2. 打开 https://github.com/Ltsunahi/cst-checker/deployments 看有没有正在跑/失败的部署
+3. 跑 `node tools\verify_live.js` 直接检查线上文件是否已经变了
+4. CDN 有缓存，偶尔要等一两分钟；强制刷新用 `Ctrl+F5`

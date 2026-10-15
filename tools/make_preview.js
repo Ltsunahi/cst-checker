@@ -67,4 +67,4 @@ document.addEventListener('DOMContentLoaded', function () {
 `;
 
 fs.writeFileSync(path.join(L.PUBLIC_DIR, '_preview.html'), html, 'utf8');
-console.log('已生成 public\\_preview.html');
+console.log('已生成 docs\\_preview.html');

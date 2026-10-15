@@ -9,7 +9,8 @@ const { execFileSync } = require('child_process');
 
 const ROOT = path.resolve(__dirname, '..');
 const CONFIG_PATH = path.join(__dirname, 'build_config.json');
-const PUBLIC_DIR = path.join(ROOT, 'public');
+// 构建产物目录。GitHub Pages 走「分支发布」，只能指向仓库根目录或 /docs，所以用 docs。
+const PUBLIC_DIR = path.join(ROOT, 'docs');
 const SRC_DIR = path.join(ROOT, 'src');
 
 /* ---------------- 配置 ---------------- */
