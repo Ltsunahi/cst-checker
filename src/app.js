@@ -141,7 +141,9 @@
 
     function renderMessage(bundle, code, vars) {
         var templates = bundle.templates || {};
-        var tpl = templates[code] || templates.NotFound || '';
+        // 没有分组时优先用「去掉分组那句」的变体，避免出现「你所进入的组别是：。」
+        var key = (!vars.group && templates[code + '_nogroup']) ? code + '_nogroup' : code;
+        var tpl = templates[key] || templates[code] || templates.NotFound || '';
         // 未在 vars 中出现的占位符原样保留，方便排查
         return tpl.replace(/\$\{(\w+)\}/g, function (m, k) {
             return Object.prototype.hasOwnProperty.call(vars, k) ? escapeHtml(vars[k]) : m;
