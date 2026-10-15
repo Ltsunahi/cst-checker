@@ -65,6 +65,11 @@ def main():
     ap.add_argument("output")
     ap.add_argument("--fail-max", type=float, default=2.0)
     ap.add_argument("--ref", default=None)
+    ap.add_argument(
+        "--exclude",
+        default="",
+        help="逗号分隔的姓名，整个跳过（例如缺考没来的人，既不算通过也不算不通过）",
+    )
     a = ap.parse_args()
 
     header, rows = load_rows(a.input)
@@ -89,10 +94,15 @@ def main():
                 ref[n] = s
 
     out, warned = [], []
-    n_fail = n_pass = 0
+    excluded = {norm(x) for x in a.exclude.replace("，", ",").split(",") if norm(x)}
+    n_fail = n_pass = n_skip = 0
     for idx, r in enumerate(rows, start=2):
         name, sid = norm(r[i_name]), norm(r[i_sid])
         if not name and not sid:
+            continue
+        if name in excluded:
+            n_skip += 1
+            warned.append("第 %d 行 %s 按 --exclude 跳过（不计入通过/不通过）" % (idx, name))
             continue
         if not re.match(r"^\d{6,20}$", sid):
             if name in ref:
@@ -122,8 +132,8 @@ def main():
         w.writerows(out)
 
     print("写入 %s" % a.output)
-    print("  总人数 %d   通过 %d   未通过 %d   （评分 <= %g 判为未通过）"
-          % (len(out), n_pass, n_fail, a.fail_max))
+    print("  总人数 %d   通过 %d   未通过 %d   排除 %d   （评分 <= %g 判为未通过）"
+          % (len(out), n_pass, n_fail, n_skip, a.fail_max))
     for m in warned:
         print("  [注意] " + m)
 
