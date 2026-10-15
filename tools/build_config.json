@@ -5,8 +5,11 @@
     "year": "2026",
     "deadline": "10月17日中午12:00前",
     "groupName": "xxx",
-    "groupQq": "xxxxxx"
+    "groupQq": "965146658"
   },
+
+  "_defaultGroup说明": "名单里「分组」列为空时，一律按这个组显示。留空则走 P_nogroup 文案。",
+  "defaultGroup": "技术组",
 
   "templates": {
     "P": "<h3>恭喜通过！</h3><p><strong>${nameToSearch}</strong>, 恭喜你顺利通过${year}年计算机维护队第二轮招新面试！</p><p>你所进入的组别是：<strong>${group}</strong>。</p><p>请于<strong>${deadline}</strong>加入Q群：${groupName}（群号：<strong>${groupQq}</strong>），并随时留意群内通知。</p>",

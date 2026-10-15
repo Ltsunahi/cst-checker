@@ -213,7 +213,9 @@ function loadRoster(inputPath) {
         const sid = normalizeSid(r[col.sid]);
         const name = normalizeName(r[col.name]);
         const rawCode = r[col.code];
-        const group = col.group >= 0 ? String(r[col.group] == null ? '' : r[col.group]).trim() : '';
+        let group = col.group >= 0 ? String(r[col.group] == null ? '' : r[col.group]).trim() : '';
+        // 名单里没填分组时用配置里的默认组
+        if (!group && cfg.defaultGroup) group = String(cfg.defaultGroup).trim();
 
         if (!sid && !name) continue;
         if (!sid) { warnings.push(`第 ${lineNo} 行：缺学号，已跳过（姓名 ${name || '空'}）`); continue; }
