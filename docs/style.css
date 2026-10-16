@@ -204,6 +204,9 @@ footer {
 
 footer p { margin: 0; }
 
+/* 号码/微信号整段不拆行，换行只发生在空格处 */
+footer .nb { white-space: nowrap; }
+
 /* ---------- 移动端 ---------- */
 
 @media (max-width: 480px) {

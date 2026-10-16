@@ -42,7 +42,7 @@ const html = `<!DOCTYPE html>
     <div id="status" class="status" role="status" aria-live="polite"></div>
     <div id="result" class="result-box"></div>
 </main>
-<footer><p>如有疑惑，请联系QQ：3071315830 或微信号：OIUU-UUIO</p></footer>
+<footer><p>如有疑惑，请联系QQ：<span class="nb">3071315830</span> 或微信号：<span class="nb">OIUU-UUIO</span></p></footer>
 <script src="app.js"></script>
 <script>
 var TEMPLATES = ${JSON.stringify(bundle.templates)};
