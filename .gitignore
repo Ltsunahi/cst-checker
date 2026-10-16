@@ -15,6 +15,7 @@ node_modules/
 PLAN.md
 tools/fetch_ref_data.js
 .tmp/
+.dev/
 *.log
 Thumbs.db
 desktop.ini
