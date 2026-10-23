@@ -30,12 +30,8 @@ const html = `<!DOCTYPE html>
     </header>
     <form class="search-box" id="searchForm" autocomplete="off" novalidate>
         <div class="field">
-            <label for="sidInput">学号</label>
-            <input type="text" id="sidInput" name="sid" placeholder="请输入学号" maxlength="20">
-        </div>
-        <div class="field">
             <label for="nameInput">姓名</label>
-            <input type="text" id="nameInput" name="name" placeholder="请输入姓名" maxlength="20">
+            <input type="text" id="nameInput" name="name" placeholder="请输入你的姓名" maxlength="20">
         </div>
         <button type="submit" id="searchButton">查 询</button>
     </form>
@@ -49,9 +45,7 @@ var TEMPLATES = ${JSON.stringify(bundle.templates)};
 document.addEventListener('DOMContentLoaded', function () {
     var q = new URLSearchParams(location.search);
     if (q.get('blank')) return;
-    var sid = q.get('sid') || '20251234501';
-    var name = q.get('name') || '张三';
-    document.getElementById('sidInput').value = sid;
+    var name = q.get('name') || '梁凯翔';
     document.getElementById('nameInput').value = name;
     var code = q.get('code') || 'P';
     var vars = { nameToSearch: name, group: q.get('group') || '技术组' };

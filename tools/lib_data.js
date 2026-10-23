@@ -192,7 +192,7 @@ function loadRoster(inputPath) {
     const col = buildHeaderIndex(header, cfg);
 
     const missing = [];
-    if (col.sid < 0) missing.push('学号');
+    // 学号是可选的：名单里没有学号时，站点按姓名查询
     if (col.name < 0) missing.push('姓名');
     if (col.code < 0) missing.push('结果');
     if (missing.length) {
@@ -211,16 +211,17 @@ function loadRoster(inputPath) {
     for (let i = 1; i < rows.length; i++) {
         const r = rows[i];
         const lineNo = i + 1;
-        const sid = normalizeSid(r[col.sid]);
+        const sid = col.sid >= 0 ? normalizeSid(r[col.sid]) : '';
         const name = normalizeName(r[col.name]);
         const rawCode = r[col.code];
         let group = col.group >= 0 ? String(r[col.group] == null ? '' : r[col.group]).trim() : '';
         // 名单里没填分组时用配置里的默认组
         if (!group && cfg.defaultGroup) group = String(cfg.defaultGroup).trim();
 
-        if (!sid && !name) continue;
-        if (!sid) { warnings.push(`第 ${lineNo} 行：缺学号，已跳过（姓名 ${name || '空'}）`); continue; }
-        if (!name) { warnings.push(`第 ${lineNo} 行：缺姓名，已跳过（学号 ${sid}）`); continue; }
+        if (!name) {
+            if (sid) warnings.push(`第 ${lineNo} 行：缺姓名，已跳过（学号 ${sid}）`);
+            continue;
+        }
 
         const code = mapCode(rawCode, cfg);
         if (code == null) {
@@ -230,13 +231,13 @@ function loadRoster(inputPath) {
 
         const finalCode = code == null ? 'N' : code;
 
-        if (!/^\d{6,20}$/.test(sid)) {
+        if (sid && !/^\d{6,20}$/.test(sid)) {
             warnings.push(`第 ${lineNo} 行：学号 ${JSON.stringify(sid)} 不是 6-20 位纯数字，请确认`);
         }
 
-        const dedupKey = sid + '|' + name;
+        const dedupKey = sid ? sid + '|' + name : name;
         if (seen.has(dedupKey)) {
-            warnings.push(`第 ${lineNo} 行：与第 ${seen.get(dedupKey)} 行的学号+姓名重复，后者会被覆盖`);
+            warnings.push(`第 ${lineNo} 行：与第 ${seen.get(dedupKey)} 行重复（同名或同学号），后者会被覆盖`);
         }
         seen.set(dedupKey, lineNo);
 

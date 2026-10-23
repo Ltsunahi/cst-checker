@@ -1,9 +1,12 @@
-/* 计维二面结果查询 —— 查询与解密逻辑
+/* 计维招新结果查询 —— 查询与解密逻辑
  *
- * 设计：站点是纯静态的，所以数据文件对所有人可见。保护方式是「提高爆破成本」：
- *   索引 id  = SHA-256( pepper | 学号 | 姓名 )     —— 用于定位记录，反查不出是谁
- *   载荷 ct  = AES-256-GCM( 记录, key = PBKDF2-SHA256(学号 | 姓名, salt, 60万轮) )
- * 数据文件里既没有明文学号，也没有明文姓名；只知其一无法解密。
+ * 设计：站点是纯静态的，数据文件对所有人可见。保护方式是「提高爆破成本」：
+ *   索引 id  = SHA-256( pepper | 姓名 )        —— 用于定位记录，反查不出是谁
+ *   载荷 ct  = AES-256-GCM( 记录, key = PBKDF2-SHA256(姓名, salt, 60万轮) )
+ * 数据文件里没有明文姓名。
+ *
+ * 注意：当前版本按「姓名」单字段查询（名单里没有学号）。姓名可猜性高于学号，
+ * 60 万轮 PBKDF2 是这里唯一的成本门槛；若日后拿到学号，建议改回双字段。
  */
 (function () {
     'use strict';
@@ -36,7 +39,7 @@
 
     /* ---------------- 输入归一化 ---------------- */
 
-    // 全角数字/字母/空格 -> 半角，并去掉所有空白
+    // 全角 -> 半角，并去掉所有空白
     function toHalfWidth(s) {
         return String(s)
             .replace(/[\uFF01-\uFF5E]/g, function (c) {
@@ -45,25 +48,21 @@
             .replace(/\u3000/g, ' ');
     }
 
-    function normalizeSid(sid) {
-        return toHalfWidth(sid).replace(/\s+/g, '').trim();
-    }
-
     function normalizeName(name) {
         return toHalfWidth(name).replace(/\s+/g, '').trim();
     }
 
     /* ---------------- 加解密 ---------------- */
 
-    function hashId(pepper, sid, name) {
+    function hashId(pepper, name) {
         return crypto.subtle
-            .digest('SHA-256', enc.encode(pepper + '|' + sid + '|' + name))
+            .digest('SHA-256', enc.encode(pepper + '|' + name))
             .then(bytesToHex);
     }
 
-    function deriveKey(sid, name, saltB64, iterations) {
+    function deriveKey(name, saltB64, iterations) {
         return crypto.subtle
-            .importKey('raw', enc.encode(sid + '|' + name), 'PBKDF2', false, ['deriveKey'])
+            .importKey('raw', enc.encode(name), 'PBKDF2', false, ['deriveKey'])
             .then(function (material) {
                 return crypto.subtle.deriveKey(
                     {
@@ -98,17 +97,16 @@
 
     /* ---------------- 查询 ---------------- */
 
-    function query(sid, name) {
-        var nSid = normalizeSid(sid);
+    function query(name) {
         var nName = normalizeName(name);
 
-        if (!nSid || !nName) {
+        if (!nName) {
             return Promise.resolve({ ok: false, reason: 'empty' });
         }
 
         return loadBundle().then(function (bundle) {
             var kdf = bundle.kdf;
-            return hashId(kdf.pepper, nSid, nName).then(function (id) {
+            return hashId(kdf.pepper, nName).then(function (id) {
                 var rec = bundle.records[id];
                 if (!rec) {
                     return {
@@ -118,7 +116,7 @@
                         vars: { nameToSearch: nName, group: '' },
                     };
                 }
-                return deriveKey(nSid, nName, kdf.salt, kdf.iterations).then(function (key) {
+                return deriveKey(nName, kdf.salt, kdf.iterations).then(function (key) {
                     return crypto.subtle
                         .decrypt({ name: 'AES-GCM', iv: b64ToBytes(rec.iv) }, key, b64ToBytes(rec.ct))
                         .then(function (plain) {
@@ -161,7 +159,6 @@
 
     function init(doc) {
         var form = doc.getElementById('searchForm');
-        var sidInput = doc.getElementById('sidInput');
         var nameInput = doc.getElementById('nameInput');
         var button = doc.getElementById('searchButton');
         var statusEl = doc.getElementById('status');
@@ -199,14 +196,8 @@
                 return;
             }
 
-            var sid = sidInput.value;
             var name = nameInput.value;
 
-            if (!normalizeSid(sid)) {
-                setStatus('请输入学号。', true);
-                sidInput.focus();
-                return;
-            }
             if (!normalizeName(name)) {
                 setStatus('请输入姓名。', true);
                 nameInput.focus();
@@ -220,10 +211,10 @@
 
             var started = Date.now();
 
-            query(sid, name)
+            query(name)
                 .then(function (r) {
                     if (!r.ok && r.reason === 'empty') {
-                        setStatus('请把学号和姓名都填写完整。', true);
+                        setStatus('请输入姓名。', true);
                         return;
                     }
 
@@ -253,20 +244,17 @@
         form.addEventListener('submit', onSubmit);
 
         // 输入变化就撤掉上一个人的结果，避免看串
-        [sidInput, nameInput].forEach(function (el) {
-            el.addEventListener('input', function () {
-                clearResult();
-                setStatus('');
-            });
+        nameInput.addEventListener('input', function () {
+            clearResult();
+            setStatus('');
         });
 
-        sidInput.focus();
+        nameInput.focus();
     }
 
     /* ---------------- 导出 ---------------- */
 
     var QC = {
-        normalizeSid: normalizeSid,
         normalizeName: normalizeName,
         hashId: hashId,
         deriveKey: deriveKey,

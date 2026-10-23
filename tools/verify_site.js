@@ -42,11 +42,11 @@ async function main() {
     const t0 = Date.now();
 
     for (const p of people) {
-        // 故意带上首尾空格和全角数字，顺便验证归一化
-        const messySid = '\u3000' + p.sid + ' ';
+        // 故意带上首尾空格和全角空格，顺便验证归一化
+        const messyName = '\u3000' + p.name + ' ';
         let r;
         try {
-            r = await QC.query(messySid, ' ' + p.name + '\u3000');
+            r = await QC.query(messyName);
         } catch (e) {
             failures.push({ p, why: '抛异常：' + e.message });
             continue;
@@ -70,26 +70,24 @@ async function main() {
         pass++;
     }
 
-    /* 反向用例：不存在的学号必须落到 NotFound，且不能抛异常 */
-    const ghost = await QC.query('99999999999', '查无此人');
+    /* 反向用例：不存在的姓名必须落到 NotFound，且不能抛异常 */
+    const ghost = await QC.query('查无此人');
     const ghostOk = ghost.ok && ghost.code === 'NotFound';
 
     /* 反向用例：姓名错一个字必须查不到 */
-    const wrongName = await QC.query(people[0].sid, people[0].name + '错');
+    const wrongName = await QC.query(people[0].name + '错');
     const wrongNameOk = wrongName.ok && wrongName.code === 'NotFound';
 
-    /* 反向用例：数据文件里不得出现明文姓名或学号 */
+    /* 反向用例：数据文件里不得出现明文姓名 */
     const leakedNames = people.filter((p) => bundleText.includes(p.name)).map((p) => p.name);
-    const leakedSids = people.filter((p) => bundleText.includes(p.sid)).map((p) => p.sid);
 
     console.log('--- 正向用例 ---');
     console.log(`通过：${pass} / ${people.length}`);
     console.log('');
     console.log('--- 反向用例 ---');
-    console.log('不存在的学号 -> ' + (ghostOk ? 'NotFound ✓' : '✗ 实际 ' + ghost.code));
+    console.log('不存在的姓名 -> ' + (ghostOk ? 'NotFound ✓' : '✗ 实际 ' + ghost.code));
     console.log('姓名错一位   -> ' + (wrongNameOk ? 'NotFound ✓' : '✗ 实际 ' + wrongName.code));
     console.log('数据文件含明文姓名：' + (leakedNames.length ? '✗ ' + leakedNames.join('、') : '无 ✓'));
-    console.log('数据文件含明文学号：' + (leakedSids.length ? '✗ ' + leakedSids.join('、') : '无 ✓'));
     console.log('');
     console.log('单次查询耗时：约 ' + Math.round((Date.now() - t0) / people.length) + ' ms（含 60 万轮 PBKDF2）');
 
@@ -97,14 +95,14 @@ async function main() {
         console.log('');
         console.log('--- 失败明细（最多 15 条）---');
         for (const f of failures.slice(0, 15)) {
-            console.log(`  第 ${f.p.lineNo} 行 ${f.p.sid} ${f.p.name}：${f.why}`);
+            console.log(`  第 ${f.p.lineNo} 行 ${f.p.name}：${f.why}`);
         }
         console.log('');
         console.log('结论：✗ 有 ' + failures.length + ' 条不通过');
         process.exit(1);
     }
 
-    if (!ghostOk || !wrongNameOk || leakedNames.length || leakedSids.length) {
+    if (!ghostOk || !wrongNameOk || leakedNames.length) {
         console.log('');
         console.log('结论：✗ 反向用例未通过');
         process.exit(1);

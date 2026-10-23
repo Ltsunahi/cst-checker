@@ -21,12 +21,12 @@ const REPORT = path.join(L.ROOT, 'build-report.txt');
 
 /* ---------------- 加解密（必须与 src/app.js 完全一致） ---------------- */
 
-function hashId(pepper, sid, name) {
-    return crypto.createHash('sha256').update(pepper + '|' + sid + '|' + name, 'utf8').digest('hex');
+function hashId(pepper, name) {
+    return crypto.createHash('sha256').update(pepper + '|' + name, 'utf8').digest('hex');
 }
 
-function deriveKey(sid, name, salt, iterations) {
-    return crypto.pbkdf2Sync(Buffer.from(sid + '|' + name, 'utf8'), salt, iterations, 32, 'sha256');
+function deriveKey(name, salt, iterations) {
+    return crypto.pbkdf2Sync(Buffer.from(name, 'utf8'), salt, iterations, 32, 'sha256');
 }
 
 function encryptRecord(key, payload) {
@@ -82,9 +82,9 @@ function main() {
     let collisions = 0;
 
     for (const p of people) {
-        const id = hashId(pepper, p.sid, p.name);
+        const id = hashId(pepper, p.name);
         if (records[id]) collisions++;
-        const key = deriveKey(p.sid, p.name, salt, iterations);
+        const key = deriveKey(p.name, salt, iterations);
         records[id] = encryptRecord(key, { code: p.code, group: p.group || '' });
     }
 

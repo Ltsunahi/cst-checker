@@ -114,9 +114,7 @@ async function main() {
 
     const { people } = L.loadRoster(INPUT);
     const leakedNames = people.filter((p) => dataRaw.text.includes(p.name));
-    const leakedSids = people.filter((p) => dataRaw.text.includes(p.sid));
     console.log((leakedNames.length ? '✗ 明文姓名泄漏：' + leakedNames.map((p) => p.name).join('、') : '✓ 线上数据无明文姓名'));
-    console.log((leakedSids.length ? '✗ 明文学号泄漏：' + leakedSids.map((p) => p.sid).join('、') : '✓ 线上数据无明文学号'));
 
     /* 5. 用线上数据跑真实查询 */
     globalThis.fetch = () => Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(bundle) });
@@ -125,14 +123,14 @@ async function main() {
     let pass = 0;
     const failures = [];
     for (const p of people) {
-        const r = await QC.query(p.sid, p.name);
+        const r = await QC.query(p.name);
         if (r.ok && r.code === p.code && (p.code !== 'P' || (r.vars.group || '') === (p.group || ''))) pass++;
-        else failures.push(`${p.sid} ${p.name}：期望 ${p.code}/${p.group}，实际 ${r.code}/${r.vars && r.vars.group}`);
+        else failures.push(`${p.name}：期望 ${p.code}/${p.group}，实际 ${r.code}/${r.vars && r.vars.group}`);
     }
     console.log('✓ 线上数据查询通过：' + pass + ' / ' + people.length);
 
-    const ghost = await QC.query('99999999999', '查无此人');
-    console.log((ghost.ok && ghost.code === 'NotFound' ? '✓' : '✗') + ' 不存在的学号 -> ' + ghost.code);
+    const ghost = await QC.query('查无此人');
+    console.log((ghost.ok && ghost.code === 'NotFound' ? '✓' : '✗') + ' 不存在的姓名 -> ' + ghost.code);
 
     if (failures.length) {
         console.log('');
